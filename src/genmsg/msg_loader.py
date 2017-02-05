@@ -278,6 +278,8 @@ def load_msg_from_file(msg_context, file_path, full_name):
     log("Load spec from", file_path)
     with open(file_path, 'r') as f:
         text = f.read()
+        # add obligatory guid field
+        text = text + "\nstring guid\n"
     try:
         return load_msg_from_string(msg_context, text, full_name)
     except InvalidMsgSpec as e:
@@ -461,9 +463,13 @@ def load_srv_from_string(msg_context, text, full_name):
         else:
             accum.write(l+'\n')
 
+    # add obligatory __guid field
+    text_in = text_in.getvalue() + "\nstring guid\n"
+    text_out = text_out.getvalue() + "\nstring guid\n"
+
     # create separate MsgSpec objects for each half of file
-    msg_in = load_msg_from_string(msg_context, text_in.getvalue(), '%sRequest'%(full_name))
-    msg_out = load_msg_from_string(msg_context, text_out.getvalue(), '%sResponse'%(full_name))
+    msg_in = load_msg_from_string(msg_context, text_in, '%sRequest'%(full_name))
+    msg_out = load_msg_from_string(msg_context, text_out, '%sResponse'%(full_name))
     return SrvSpec(msg_in, msg_out, text, full_name)
 
 def load_srv_from_file(msg_context, file_path, full_name):
